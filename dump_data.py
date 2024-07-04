@@ -1,6 +1,7 @@
 import joblib
 from sklearn import datasets
 from sklearn.model_selection import train_test_split
+import oras.client
 
 
 def main():
@@ -10,6 +11,8 @@ def main():
     save_as_joblib("X_test", X_test)
     save_as_joblib("y_train", y_train)
     save_as_joblib("y_test", y_test)
+    client = oras.client.OrasClient()
+    client.push(files=["X_train.joblib", "X_test.joblib", "y_train.joblib", "y_test.joblib"], target="quay.io/mmortari/ml-iris:data")
 
 
 def save_as_joblib(filename: str, data):

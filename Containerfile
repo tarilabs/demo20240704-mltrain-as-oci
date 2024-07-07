@@ -1,6 +1,7 @@
 FROM python:3.10-bullseye
 
 RUN groupadd -r oml && useradd -m -r -g oml oml
+USER oml
 WORKDIR /app
 
 COPY requirements.txt requirements.txt
@@ -9,7 +10,6 @@ COPY report_sha.py report_sha.py
 COPY thirdparty/ thirdparty/
 
 RUN chown -R oml:oml /app
-USER oml
 RUN mkdir /home/oml/.docker
 
 RUN pip install -r requirements.txt

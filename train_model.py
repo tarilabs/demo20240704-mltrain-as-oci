@@ -16,8 +16,8 @@ def main():
     svc_linear.fit(X_train, y_train)
 
     y_pred = svc_linear.predict(X_test)
-    save_as_joblib("model", svc_linear)
     accuracy_value = accuracy_score(y_test, y_pred)
+    save_as_joblib("model", svc_linear)
     print("accuracy:", accuracy_value)
 
     dry_run(0, svc_linear, X_test, y_test) # lame, but okay for this demo

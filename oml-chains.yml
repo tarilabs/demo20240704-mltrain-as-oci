@@ -1,3 +1,4 @@
+---
 apiVersion: tekton.dev/v1
 kind: Task
 metadata:
@@ -8,40 +9,42 @@ spec:
     This Task stores the image name and digest as results, allowing Tekton Chains to pick up
     that an image was built & sign it.
   params:
-  - name: IMAGE
-    description: (ignored actually).
-    default: quay.io/mmortari/ml-iris:v1
-  workspaces:
-  - name: source
-    description: Holds the context and Dockerfile
-  - name: dockerconfig
-    description: Includes a docker `config.json`
-    optional: true
-    mountPath: /home/oml/.docker
+    - name: IMAGE
+      description: Reference of the image this Task will produce.
+      type: string
+    - name: DATASET
+      description: Reference of the dataset to be used during model training.
+      type: string
   results:
-  - name: IMAGE_DIGEST
-    description: Digest of the image just built.
-  - name: IMAGE_URL
-    description: URL of the image just built.
+    - name: IMAGE_DIGEST
+      description: Digest of the model just trained.
+    - name: IMAGE_URL
+      description: URL of the model just trained.
+    - name: DATASET_DIGEST
+      description: Digest of the dataset used during model training.
+    - name: DATASET_URL
+      description: URL of the dataset used during model training.
   steps:
-  - name: oml-train-and-push
-    workingDir: $(workspaces.source.path)
-    image: quay.io/mmortari/demo20240704-mltrain-as-oci:latest
-    script: |
-      whoami
-      pwd
-      ls -la
-      python /app/train_model.py 
-      python /app/report_sha.py | tee $(results.IMAGE_DIGEST.path)
-    # kaniko assumes it is running as root, which means this example fails on platforms
-    # that default to run containers as random uid (like OpenShift). Adding this securityContext
-    # makes it explicit that it needs to run as root.
-    # securityContext:
-    #   runAsUser: 0
-  - name: write-url
-    image: bash
-    script: |
-      set -e
-      echo $(params.IMAGE) | tee $(results.IMAGE_URL.path)
-    # securityContext:
-    #   runAsUser: 0
+    - name: oml-train-and-push
+      image: quay.io/lucarval/mltrain:latest
+      # Ideally the `image` is pinned to a digest, but using a tag help with development. Make sure
+      # Tekton always fetches the latest version of the image in this case.
+      imagePullPolicy: Always
+      env:
+      - name: IMAGE
+        value: $(params.IMAGE)
+      - name: DATASET
+        value: $(params.DATASET)
+      script: |
+        # Resolve the dataset ref to a digest.
+        # TODO: Handle the case where DATASET already contains a digest.
+        DATASET_DIGEST="$(skopeo inspect --raw "docker://${DATASET}" | sha256sum | awk '{printf "sha256:"$1}')"
+
+        echo -n "${DATASET_DIGEST}" | tee $(results.DATASET_DIGEST.path)
+        echo -n "${DATASET}" | tee $(results.DATASET_URL.path)
+
+        python /app/train_model.py --image "${IMAGE}" \
+          --dataset "${DATASET}@${DATASET_DIGEST}"
+
+        skopeo inspect --raw "docker://${IMAGE}" | sha256sum | awk '{printf "sha256:"$1}' | tee $(results.IMAGE_DIGEST.path)
+        echo -n "${IMAGE}" | tee $(results.IMAGE_URL.path)

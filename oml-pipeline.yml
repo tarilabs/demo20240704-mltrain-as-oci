@@ -1,0 +1,28 @@
+---
+# Tekton Chains provides a richer SLSA Provenance attestation for Pipelines.
+apiVersion: tekton.dev/v1
+kind: Pipeline
+metadata:
+  name: oml-chains
+spec:
+  params:
+    - name: IMAGE
+      description: Reference of the image this Task will produce.
+      type: string
+    - name: DATASET
+      description: Reference of the dataset to be used during model training.
+      type: string
+  results:
+    - name: IMAGE_URL
+      value: $(tasks.train-and-push.results.IMAGE_URL)
+    - name: IMAGE_DIGEST
+      value: $(tasks.train-and-push.results.IMAGE_DIGEST)
+  tasks:
+    - name: train-and-push
+      params:
+        - name: IMAGE
+          value: $(params.IMAGE)
+        - name: DATASET
+          value: $(params.DATASET)
+      taskRef:
+        name: oml-chains

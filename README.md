@@ -76,3 +76,9 @@ Notice how it is also possible to determine the exact dataset used during traini
 NOTE: `cosign download` does not verify the data has not been tampered with. It's good enough for
 exploratory work. Production workflows should always access this data via something like
 `cosign verify-attestation`.
+
+You can also use [Enterprise Contract](https://enterprisecontract.dev/) to verify the image is
+signed, it has an assocaited SLSA Provenance attestation, and more. Use the script
+[check.sh](policy/check.sh) for this.
+
+NOTE: Modify the ruleData in [config.yaml](policy/config.yaml) to see what a failure looks like.

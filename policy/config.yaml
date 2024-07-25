@@ -1,0 +1,12 @@
+---
+sources:
+  - policy:
+      - github.com/tarilabs/demo20240704-mltrain-as-oci//policy/rules
+      - github.com/enterprise-contract/ec-policies//policy/lib
+      - github.com/enterprise-contract/ec-policies//policy/release/lib/
+    data:
+      - oci::quay.io/konflux-ci/tekton-catalog/data-acceptable-bundles:latest
+      - github.com/release-engineering/rhtap-ec-policy//data
+    ruleData:
+      allowed_dataset_prefixes:
+        - quay.io/mmortari/

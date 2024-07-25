@@ -1,3 +1,4 @@
+import argparse
 import joblib
 from sklearn.svm import SVC
 from sklearn.metrics import accuracy_score
@@ -5,9 +6,9 @@ import oras.client
 from oml.helpers import Helper
 from oml.provider import OMLRegistry
 
-def main():
+def main(image, dataset):
     client = oras.client.OrasClient()
-    client.pull(target="quay.io/mmortari/ml-iris:data", outdir=".")
+    client.pull(target=dataset, outdir=".")
     X_train = open_as_joblib("X_train")
     X_test = open_as_joblib("X_test")
     y_train = open_as_joblib("y_train")
@@ -25,7 +26,7 @@ def main():
     dry_run(4, svc_linear, X_test, y_test)
 
     oml = Helper(OMLRegistry())
-    oml.push("quay.io/mmortari/ml-iris:v1", "model.joblib", name="Model Example", author="John Doe", license="Apache-2.0", accuracy=accuracy_value)
+    r = oml.push(image, "model.joblib", name="Model Example", author="John Doe", license="Apache-2.0", accuracy=accuracy_value)
 
 
 def dry_run(idx: int, model, X_test, y_test):
@@ -38,14 +39,19 @@ def dry_run(idx: int, model, X_test, y_test):
 
 
 def open_as_joblib(filename: str):
-    with open(filename+".joblib", 'rb') as fi:  
+    with open(filename+".joblib", 'rb') as fi:
         return joblib.load(fi)
 
 
 def save_as_joblib(filename: str, data):
-    with open(filename+".joblib", 'wb') as fo:  
+    with open(filename+".joblib", 'wb') as fo:
         joblib.dump(data, fo)
 
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--image", required=True)
+    parser.add_argument("--dataset", required=True)
+    args = parser.parse_args()
+
+    main(image=args.image, dataset=args.dataset)

@@ -10,7 +10,9 @@ cd "$(git rev-parse --show-toplevel)"
 export RULES="$(pwd)//policy/rules"
 
 # This is the public key used during testing with a kind cluster. It will need to be updated when
-# verifying an image other than the default one.
+# verifying an image other than the default one, i.e.: this is the content of `cosign.pub` when
+# executing: cosign generate-key-pair k8s://tekton-chains/signing-secrets from the tutorial:
+# https://tekton.dev/docs/chains/signed-provenance-tutorial/#generate-a-key-pair
 PUBLIC_KEY='-----BEGIN PUBLIC KEY-----
 MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEQmnuZzvNkoDf9G/CqFbq5sYw2aK/
 LKLdobfjGnOSiq5k2L3lQXv+jNTkcDCgIUk1HZkkFd4TFvkzYxGlfs0EoQ==

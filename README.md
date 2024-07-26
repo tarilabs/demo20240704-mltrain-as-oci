@@ -82,3 +82,13 @@ signed, it has an assocaited SLSA Provenance attestation, and more. Use the scri
 [check.sh](policy/check.sh) for this.
 
 NOTE: Modify the ruleData in [config.yaml](policy/config.yaml) to see what a failure looks like.
+
+The image signatures that EC verifies are [Sigstore](https://www.sigstore.dev/) based signatures.
+There are [different ways](https://blog.sigstore.dev/adopting-sigstore-incrementally-1b56a69b8c15/)
+of using Sigstore. For simplicity sake, the test model image built from this repo was signed with a
+long-lived key without Rekor integration. This means that we need to provide the public key when
+validating the image with EC. Furthermore, the *private* key is never really stored anywhere. So if
+running through the process of building the image again, a new key pair will be created. As such,
+update the public key in the [check.sh](policy/check.sh) script. The public key is referring to the
+file `cosign.pub` when executing: `cosign generate-key-pair k8s://tekton-chains/signing-secrets`from
+the tutorial: <https://tekton.dev/docs/chains/signed-provenance-tutorial/#generate-a-key-pair>

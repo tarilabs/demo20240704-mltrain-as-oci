@@ -12,9 +12,11 @@ spec:
     - name: IMAGE
       description: Reference of the image this Task will produce.
       type: string
+      default: quay.io/mmortari/ml-iris:v1
     - name: DATASET
       description: Reference of the dataset to be used during model training.
       type: string
+      default: quay.io/mmortari/ml-iris:data
   results:
     - name: IMAGE_DIGEST
       description: Digest of the model just trained.
@@ -26,9 +28,9 @@ spec:
       description: URL of the dataset used during model training.
   steps:
     - name: oml-train-and-push
-      image: quay.io/lucarval/mltrain:latest
-      # Ideally the `image` is pinned to a digest, but using a tag help with development. Make sure
-      # Tekton always fetches the latest version of the image in this case.
+      image: quay.io/mmortari/demo20240704-mltrain-as-oci:latest
+      # Ideally the `image` is pinned to a digest, but using a tag here helps with development.
+      # Hence, make sure Tekton always fetches the latest version of the image with imagePullPolicy 
       imagePullPolicy: Always
       env:
       - name: IMAGE
@@ -40,11 +42,22 @@ spec:
         # TODO: Handle the case where DATASET already contains a digest.
         DATASET_DIGEST="$(skopeo inspect --raw "docker://${DATASET}" | sha256sum | awk '{printf "sha256:"$1}')"
 
-        echo -n "${DATASET_DIGEST}" | tee $(results.DATASET_DIGEST.path)
-        echo -n "${DATASET}" | tee $(results.DATASET_URL.path)
+        echo -n "${DATASET_DIGEST}" | tee $(results.DATASET_DIGEST.path) && echo
+        echo -n "${DATASET}" | tee $(results.DATASET_URL.path) && echo
 
         python /app/train_model.py --image "${IMAGE}" \
-          --dataset "${DATASET}@${DATASET_DIGEST}"
+          --dataset "${DATASET}@${DATASET_DIGEST}" \
+          --results-image-url-path $(results.IMAGE_URL.path) \
+          --results-image-digest-path $(results.IMAGE_DIGEST.path)
 
+        echo "Out of py."
+        cat $(results.IMAGE_URL.path)
+        echo
+        cat $(results.IMAGE_DIGEST.path)
+        echo
+
+        echo "Re-doing with skopeo..."
         skopeo inspect --raw "docker://${IMAGE}" | sha256sum | awk '{printf "sha256:"$1}' | tee $(results.IMAGE_DIGEST.path)
+        echo ""
         echo -n "${IMAGE}" | tee $(results.IMAGE_URL.path)
+        echo ""

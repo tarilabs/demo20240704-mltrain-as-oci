@@ -13,10 +13,7 @@ export RULES="$(pwd)//policy/rules"
 # verifying an image other than the default one, i.e.: this is the content of `cosign.pub` when
 # executing: cosign generate-key-pair k8s://tekton-chains/signing-secrets from the tutorial:
 # https://tekton.dev/docs/chains/signed-provenance-tutorial/#generate-a-key-pair
-PUBLIC_KEY='-----BEGIN PUBLIC KEY-----
-MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEvVgfjPTvBVL7YgE9lyLi6/1634OP
-c22xGKBFbt23Dn8SbYP80OsdMQrNW9ROkHDYLid/b7MXVRVnA8LFTk9fdg==
------END PUBLIC KEY-----'
+PUBLIC_KEY=$(cat cosign.pub)
 
 tempfile=$(mktemp tmpconfig.XXXXXX) && config_path="${tempfile}.yaml" && mv "$tempfile" "$config_path"
 

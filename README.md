@@ -329,4 +329,5 @@ validating the image with EC. Furthermore, the *private* key is never really sto
 running through the process of building the image again, a new key pair will be created. As such,
 update the public key in the [check.sh](policy/check.sh) script. The public key is referring to the
 file `cosign.pub` when executing: `cosign generate-key-pair k8s://tekton-chains/signing-secrets`from
-the tutorial: <https://tekton.dev/docs/chains/signed-provenance-tutorial/#generate-a-key-pair>
+the tutorial: <https://tekton.dev/docs/chains/signed-provenance-tutorial/#generate-a-key-pair>.
+The `allowed_dataset_prefixes` is defined [in the rego file](./policy/rules/dataset.rego).

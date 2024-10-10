@@ -1,7 +1,7 @@
 #! /bin/bash
 set -euo pipefail
 
-IMAGE="${1:-quay.io/lucarval/demo-oml:latest}"
+IMAGE="${1:-quay.io/mmortari/ml-iris:v1}"
 
 echo "👷 Checking ${IMAGE}"
 
@@ -14,11 +14,11 @@ export RULES="$(pwd)//policy/rules"
 # executing: cosign generate-key-pair k8s://tekton-chains/signing-secrets from the tutorial:
 # https://tekton.dev/docs/chains/signed-provenance-tutorial/#generate-a-key-pair
 PUBLIC_KEY='-----BEGIN PUBLIC KEY-----
-MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEQmnuZzvNkoDf9G/CqFbq5sYw2aK/
-LKLdobfjGnOSiq5k2L3lQXv+jNTkcDCgIUk1HZkkFd4TFvkzYxGlfs0EoQ==
+MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEvVgfjPTvBVL7YgE9lyLi6/1634OP
+c22xGKBFbt23Dn8SbYP80OsdMQrNW9ROkHDYLid/b7MXVRVnA8LFTk9fdg==
 -----END PUBLIC KEY-----'
 
-config_path="$(mktemp --suffix .yaml)"
+tempfile=$(mktemp tmpconfig.XXXXXX) && config_path="${tempfile}.yaml" && mv "$tempfile" "$config_path"
 
 # A bit of a hack here to facilitate developemtn and CI. The config.yaml can be used as is, but it
 # will use the policy rules already pushed to main.

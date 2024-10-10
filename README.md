@@ -279,6 +279,46 @@ You can also use [Enterprise Contract](https://enterprisecontract.dev/) to verif
 signed, it has an assocaited SLSA Provenance attestation, and more. Use the script
 [check.sh](policy/check.sh) for this.
 
+<details>
+
+```
+👷 Checking quay.io/mmortari/ml-iris:v1
+📓 Policy config updated to use local rules:
+---
+sources:
+  - policy:
+      - /Users/mmortari/git/demo20240704-mltrain-as-oci//policy/rules
+      - github.com/enterprise-contract/ec-policies//policy/lib
+      - github.com/enterprise-contract/ec-policies//policy/release/lib/
+    data:
+      - oci::quay.io/konflux-ci/tekton-catalog/data-acceptable-bundles:latest
+      - github.com/release-engineering/rhtap-ec-policy//data
+    ruleData:
+      allowed_dataset_prefixes:
+        - quay.io/mmortari/
+🔍 Validating image with EC
+Success: true
+Result: SUCCESS
+Violations: 0, Warnings: 0, Successes: 4
+Component: Unnamed
+ImageRef: quay.io/mmortari/ml-iris@sha256:bf64e877c24670cf517f52df470beafc611840707cf8ee45535cd1d8313784de
+
+Results:
+✓ [Success] builtin.attestation.signature_check
+  ImageRef: quay.io/mmortari/ml-iris@sha256:bf64e877c24670cf517f52df470beafc611840707cf8ee45535cd1d8313784de
+
+✓ [Success] builtin.attestation.syntax_check
+  ImageRef: quay.io/mmortari/ml-iris@sha256:bf64e877c24670cf517f52df470beafc611840707cf8ee45535cd1d8313784de
+
+✓ [Success] builtin.image.signature_check
+  ImageRef: quay.io/mmortari/ml-iris@sha256:bf64e877c24670cf517f52df470beafc611840707cf8ee45535cd1d8313784de
+
+✓ [Success] dataset.permitted
+  ImageRef: quay.io/mmortari/ml-iris@sha256:bf64e877c24670cf517f52df470beafc611840707cf8ee45535cd1d8313784de
+```
+
+</details>
+
 NOTE: Modify the ruleData in [config.yaml](policy/config.yaml) to see what a failure looks like.
 
 The image signatures that EC verifies are [Sigstore](https://www.sigstore.dev/) based signatures.

@@ -58,24 +58,24 @@ podman push quay.io/mmortari/demo20240704-mltrain-as-oci
 ## Using a Tekton chain Task
 
 ```sh
-kubectl apply -f oml-chains.yml
+kubectl apply -f omlmd-chains.yml
 ```
 
 ```sh
 DOCKERCONFIG_SECRET_NAME=dockerconfig-secret-name
-tkn task start --use-param-defaults oml-chains
+tkn task start --use-param-defaults omlmd-chains
 ```
 
 ## Using a Tekton chain Pipeline
 
 Use the commands below to build. NOTE: If you're not `mmortari` then you'll likely need to change
 some of the values below. The image ref provided to the podman commands matches the image used in
-the `oml-chains` Task. Don't forget to update that as well.
+the `omlmd-chains` Task. Don't forget to update that as well.
 
-Build image and apply `oml-chains.yml` like above; then:
+Build image and apply `omlmd-chains.yml` like above; then:
 
 ```sh
-tkn pipeline start -f ./oml-pipeline.yml --use-param-defaults --showlog
+tkn pipeline start -f ./omlmd-pipeline.yml --use-param-defaults --showlog
 ```
 
 Once the Pipeline completes, use `tkn pipelinerun describe --last` to inspect the results. 
@@ -350,3 +350,23 @@ update the public key in the [check.sh](policy/check.sh) script. The public key 
 file `cosign.pub` when executing: `cosign generate-key-pair k8s://tekton-chains/signing-secrets`from
 the tutorial: <https://tekton.dev/docs/chains/signed-provenance-tutorial/#generate-a-key-pair>.
 The `allowed_dataset_prefixes` is defined [in the rego file](./policy/rules/dataset.rego).
+
+## WIP
+
+```
+PUBLIC_KEY=$(cat cosign.pub)
+
+tkn task start --use-param-defaults -f omlmd-to-modelcar.yml \
+--param PUBLIC_KEY="$(cat cosign.pub)" --showlog \
+--workspace name=workspace1,emptyDir=""
+
+kubectl apply -f omlmd-to-modelcar.yml
+```
+
+```
+PUBLIC_KEY=$(cat cosign.pub)
+tkn pipeline start --use-param-defaults -f omlmd-pipeline-to-modelcar.yml \
+--param PUBLIC_KEY="$(cat cosign.pub)" --showlog \
+--workspace name=workspace1,volumeClaimTemplateFile=workspace-template.yaml
+```
+

@@ -3,7 +3,7 @@
 apiVersion: tekton.dev/v1
 kind: Pipeline
 metadata:
-  name: oml-chains
+  name: omlmd-chains
 spec:
   params:
     - name: IMAGE
@@ -27,4 +27,4 @@ spec:
         - name: DATASET
           value: $(params.DATASET)
       taskRef:
-        name: oml-chains
+        name: omlmd-chains

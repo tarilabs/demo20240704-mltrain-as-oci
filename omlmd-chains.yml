@@ -2,7 +2,7 @@
 apiVersion: tekton.dev/v1
 kind: Task
 metadata:
-  name: oml-chains
+  name: omlmd-chains
 spec:
   description: >-
     This Task builds a simple Dockerfile with ... and pushes to a registry.
@@ -27,7 +27,7 @@ spec:
     - name: DATASET_URL
       description: URL of the dataset used during model training.
   steps:
-    - name: oml-train-and-push
+    - name: omlmd-train-and-push
       image: quay.io/mmortari/demo20240704-mltrain-as-oci:latest
       # Ideally the `image` is pinned to a digest, but using a tag here helps with development.
       # Hence, make sure Tekton always fetches the latest version of the image with imagePullPolicy 

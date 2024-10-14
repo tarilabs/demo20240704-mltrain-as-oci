@@ -1,0 +1,41 @@
+---
+apiVersion: tekton.dev/v1
+kind: Pipeline
+metadata:
+  name: omlmd-pipeline-to-modelcar
+spec:
+  params:
+    - name: IMAGE
+      description: Reference of the OCI Artifact containing the ML model.
+      type: string
+      default: quay.io/mmortari/ml-iris:v1
+    - name: PUBLIC_KEY
+      description: public key.
+      type: string
+  results:
+    - name: OCIARTIFACT_REF
+      value: $(tasks.omlmd-to-modelcar.results.OCIARTIFACT_REF)
+  tasks:
+    - name: omlmd-to-modelcar
+      params:
+        - name: IMAGE
+          value: $(params.IMAGE)
+        - name: PUBLIC_KEY
+          value: $(params.PUBLIC_KEY)
+      workspaces:
+        - name: workspace1
+          workspace: workspace1
+      taskRef:
+        name: omlmd-to-modelcar
+    - name: build-and-push
+      runAfter: [omlmd-to-modelcar]
+      params:
+      - name: IMAGE
+        value: quay.io/mmortari/ml-iris:modelcar
+      workspaces:
+        - name: source
+          workspace: workspace1
+      taskRef:
+        name: buildah
+  workspaces:
+    - name: workspace1

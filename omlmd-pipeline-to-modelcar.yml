@@ -19,10 +19,12 @@ spec:
   results:
     - name: OCIARTIFACT_REF
       value: $(tasks.omlmd-to-modelcar.results.OCIARTIFACT_REF)
-    - name: MODELCAR_DIGEST
+    - name: IMAGE_DIGEST
       value: $(tasks.build-and-push.results.IMAGE_DIGEST)
-    - name: MODELCAR_URL
+      description: Modelcar digest, also used for Pipeline attestation
+    - name: IMAGE_URL
       value: $(tasks.build-and-push.results.IMAGE_URL)
+      description: Modelcar url, also used for Pipeline attestation
   tasks:
     - name: omlmd-to-modelcar
       params:

@@ -370,3 +370,12 @@ tkn pipeline start --use-param-defaults -f omlmd-pipeline-to-modelcar.yml \
 --workspace name=workspace1,volumeClaimTemplateFile=workspace-template.yaml
 ```
 
+```
+% cosign tree quay.io/mmortari/ml-iris:v1-modelcar                           
+📦 Supply Chain Security Related artifacts for an image: quay.io/mmortari/ml-iris:v1-modelcar
+└── 💾 Attestations for an image tag: quay.io/mmortari/ml-iris:sha256-9a3543b4fb5a05a2ba8a0079ce54c59581ce26df94dd73dd9665f509388c87a3.att
+   ├── 🍒 sha256:b43aa29bdb4dc038309a28834caa452d8d9974a2f0e5753c1d914a7250ce30a7
+   └── 🍒 sha256:c693c5479b66ff5902b6db4734425012e00a1c26b3706f9a7350cb8b7d583c40
+└── 🔐 Signatures for an image tag: quay.io/mmortari/ml-iris:sha256-9a3543b4fb5a05a2ba8a0079ce54c59581ce26df94dd73dd9665f509388c87a3.sig
+   └── 🍒 sha256:93a22c8868655804a227ace63798412b3ef442517194f26e04ae15bbc673037e
+```

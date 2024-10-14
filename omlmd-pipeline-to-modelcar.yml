@@ -5,21 +5,29 @@ metadata:
   name: omlmd-pipeline-to-modelcar
 spec:
   params:
-    - name: IMAGE
+    - name: OCIARTIFACT_IMAGE
       description: Reference of the OCI Artifact containing the ML model.
       type: string
       default: quay.io/mmortari/ml-iris:v1
+    - name: IMAGE
+      description: Reference of the Modelcar to be produced.
+      type: string
+      default: quay.io/mmortari/ml-iris:v1-modelcar
     - name: PUBLIC_KEY
       description: public key.
       type: string
   results:
     - name: OCIARTIFACT_REF
       value: $(tasks.omlmd-to-modelcar.results.OCIARTIFACT_REF)
+    - name: MODELCAR_DIGEST
+      value: $(tasks.build-and-push.results.IMAGE_DIGEST)
+    - name: MODELCAR_URL
+      value: $(tasks.build-and-push.results.IMAGE_URL)
   tasks:
     - name: omlmd-to-modelcar
       params:
         - name: IMAGE
-          value: $(params.IMAGE)
+          value: $(params.OCIARTIFACT_IMAGE)
         - name: PUBLIC_KEY
           value: $(params.PUBLIC_KEY)
       workspaces:
@@ -31,7 +39,7 @@ spec:
       runAfter: [omlmd-to-modelcar]
       params:
       - name: IMAGE
-        value: quay.io/mmortari/ml-iris:modelcar
+        value: $(params.IMAGE)
       workspaces:
         - name: source
           workspace: workspace1

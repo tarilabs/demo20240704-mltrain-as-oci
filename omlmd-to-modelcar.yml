@@ -58,7 +58,7 @@ spec:
       script: |
         cd $(workspaces.workspace1.path)
         cat <<EOF > Dockerfile
-        FROM busybox
+        FROM quay.io/prometheus/busybox
         RUN mkdir /models && chmod 775 /models
         COPY data/ /models/
         EOF

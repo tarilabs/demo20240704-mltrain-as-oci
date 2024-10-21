@@ -42,10 +42,12 @@ spec:
       params:
       - name: IMAGE
         value: $(params.IMAGE)
+      - name: SUBJECT
+        value: $(params.OCIARTIFACT_IMAGE)
       workspaces:
         - name: source
           workspace: workspace1
       taskRef:
-        name: buildah
+        name: buildah-subject
   workspaces:
     - name: workspace1

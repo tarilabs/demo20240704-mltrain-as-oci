@@ -23,7 +23,7 @@ kubectl patch configmap chains-config -n tekton-chains -p='{"data":{"artifacts.t
 kubectl patch configmap chains-config -n tekton-chains -p='{"data":{"artifacts.pipelinerun.format": "slsa/v1"}}'
 kubectl patch configmap chains-config -n tekton-chains -p='{"data":{"artifacts.pipelinerun.storage": "oci"}}'
 kubectl patch configmap chains-config -n tekton-chains -p='{"data":{"artifacts.oci.storage": "oci"}}'
-kubectl delete po -n tekton-chains -l app=tekton-chains-controller
+kubectl delete pod -n tekton-chains -l app=tekton-chains-controller
 ```
 
 (from https://tekton.dev/docs/chains/signing/#generate-cosign-keypair)<br/>
@@ -353,6 +353,43 @@ The `allowed_dataset_prefixes` is defined [in the rego file](./policy/rules/data
 
 ## WIP
 
+for local tests
+
+```
+docker run --privileged -it quay.io/buildah/stable
+```
+
+using task
+
+note.
+remember to regenerate :v1, otherwise attestation check will fail.
+
+<details>
+
+```
+PUBLIC_KEY=$(cat cosign.pub)
+tkn pipeline start --use-param-defaults -f omlmd-pipeline-to-modelcar.yml \
+--param PUBLIC_KEY="$(cat cosign.pub)" --showlog \
+--workspace name=workspace1,volumeClaimTemplateFile=workspace-template.yaml
+PipelineRun started: omlmd-pipeline-to-modelcar-run-vrb5h
+Waiting for logs to be available...
+[omlmd-to-modelcar : compute-digests] sha256:c7b4d6caf0ea0fca3cda6ac5782bb54571ee8af8b19c0d0ddde1f7de2f6834f2
+[omlmd-to-modelcar : compute-digests] quay.io/mmortari/ml-iris@sha256:c7b4d6caf0ea0fca3cda6ac5782bb54571ee8af8b19c0d0ddde1f7de2f6834f2
+
+[omlmd-to-modelcar : verify] Using file cosign.pub as public key:
+[omlmd-to-modelcar : verify] -----BEGIN PUBLIC KEY-----
+[omlmd-to-modelcar : verify] MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE+VyrlukykhDVLKU6Hd1tFTf5BG2X
+[omlmd-to-modelcar : verify] QWApQAD7z+pPXln+X/UqJ/sWwVw4QoVMqMT+HNTz6KTxCd9gw848SiNjsw==
+[omlmd-to-modelcar : verify] -----END PUBLIC KEY-----
+[omlmd-to-modelcar : verify] WARNING: Skipping tlog verification is an insecure practice that lacks of transparency and auditability verification for the attestation.
+[omlmd-to-modelcar : verify] Error: no matching attestations: accepted signatures do not match threshold, Found: 0, Expected 1
+[omlmd-to-modelcar : verify] main.go:74: error during command execution: no matching attestations: accepted signatures do not match threshold, Found: 0, Expected 1
+
+failed to get logs for task omlmd-to-modelcar : container step-verify has failed  : [{"key":"OCIARTIFACT_DIGEST","value":"sha256:c7b4d6caf0ea0fca3cda6ac5782bb54571ee8af8b19c0d0ddde1f7de2f6834f2","type":1},{"key":"OCIARTIFACT_REF","value":"quay.io/mmortari/ml-iris@sha256:c7b4d6caf0ea0fca3cda6ac5782bb54571ee8af8b19c0d0ddde1f7de2f6834f2","type":1},{"key":"StartedAt","value":"2024-10-21T10:05:52.740Z","type":3}]
+```
+
+</details>
+
 ```
 PUBLIC_KEY=$(cat cosign.pub)
 
@@ -378,4 +415,31 @@ tkn pipeline start --use-param-defaults -f omlmd-pipeline-to-modelcar.yml \
    └── 🍒 sha256:c693c5479b66ff5902b6db4734425012e00a1c26b3706f9a7350cb8b7d583c40
 └── 🔐 Signatures for an image tag: quay.io/mmortari/ml-iris:sha256-9a3543b4fb5a05a2ba8a0079ce54c59581ce26df94dd73dd9665f509388c87a3.sig
    └── 🍒 sha256:93a22c8868655804a227ace63798412b3ef442517194f26e04ae15bbc673037e
+```
+
+Notice `subject` for OCI-Dist 1.1 referrers API (optional)
+
+```
+% skopeo inspect --raw docker://quay.io/mmortari/ml-iris:v1-modelcar | jq
+{
+  "schemaVersion": 2,
+  "mediaType": "application/vnd.oci.image.index.v1+json",
+  "manifests": [
+    {
+      "mediaType": "application/vnd.oci.image.manifest.v1+json",
+      "digest": "sha256:e16171a9a15d60fc203035a68552726f58cc1b7f702708a29cfcca5688c08e95",
+      "size": 919,
+      "platform": {
+        "architecture": "arm64",
+        "os": "linux",
+        "variant": "v8"
+      }
+    }
+  ],
+  "subject": {
+    "mediaType": "application/vnd.oci.image.manifest.v1+json",
+    "digest": "sha256:dec449be52c45a217a9d6b424173458f1cb627f8da3f26668dfa6724130072f8",
+    "size": 1034
+  }
+}
 ```

@@ -1,6 +1,6 @@
 #
 # METADATA
-# title: OML checks
+# title: OMLMD checks
 #
 package policy.dataset
 

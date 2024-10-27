@@ -416,6 +416,12 @@ failed to get logs for task omlmd-to-modelcar : container step-verify has failed
 
 </details>
 
+```sh
+kubectl apply -f buildah-subject.yaml
+kubectl apply -f omlmd-to-modelcar.yml
+kubectl apply -f omlmd-pipeline-to-modelcar.yml
+```
+
 ```
 PUBLIC_KEY=$(cat cosign.pub)
 
@@ -428,8 +434,10 @@ kubectl apply -f omlmd-to-modelcar.yml
 
 ```
 PUBLIC_KEY=$(cat cosign.pub)
-tkn pipeline start --use-param-defaults -f omlmd-pipeline-to-modelcar.yml \
---param PUBLIC_KEY="$(cat cosign.pub)" --showlog \
+tkn pipeline start omlmd-pipeline-to-modelcar --use-param-defaults \
+--param PUBLIC_KEY="$(cat cosign.pub)" \
+--param OCIARTIFACT_IMAGE=quay.io/mmortari/ml-iris:v1 \
+--showlog \
 --workspace name=workspace1,volumeClaimTemplateFile=workspace-template.yaml
 ```
 

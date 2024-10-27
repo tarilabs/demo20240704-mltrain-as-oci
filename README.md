@@ -18,6 +18,33 @@ kubectl apply --filename https://storage.googleapis.com/tekton-releases/chains/l
 
 ```sh
 cosign generate-key-pair k8s://tekton-chains/signing-secrets
+```
+
+(from https://tekton.dev/docs/chains/signing/#generate-cosign-keypair)
+
+--- 
+
+OPTIONAL, to save key+psw locally
+
+```sh
+kubectl get secret signing-secrets -n tekton-chains -o jsonpath="{.data['cosign\.key']}" | base64 --decode > cosign.key
+kubectl get secret signing-secrets -n tekton-chains -o jsonpath="{.data['cosign\.password']}" | base64 --decode > cosign.password
+```
+
+to restore:
+
+```sh
+kubectl create secret generic signing-secrets2 \
+    --from-file=./cosign.key \
+    --from-file=./cosign.password \
+    --from-file=./cosign.pub
+```
+
+----
+
+CONTINUES:
+
+```sh
 kubectl patch configmap chains-config -n tekton-chains -p='{"data":{"artifacts.taskrun.format": "slsa/v1"}}'
 kubectl patch configmap chains-config -n tekton-chains -p='{"data":{"artifacts.taskrun.storage": "oci"}}'
 kubectl patch configmap chains-config -n tekton-chains -p='{"data":{"artifacts.pipelinerun.format": "slsa/v1"}}'
@@ -26,7 +53,6 @@ kubectl patch configmap chains-config -n tekton-chains -p='{"data":{"artifacts.o
 kubectl delete pod -n tekton-chains -l app=tekton-chains-controller
 ```
 
-(from https://tekton.dev/docs/chains/signing/#generate-cosign-keypair)<br/>
 (from https://tekton.dev/docs/chains/signed-provenance-tutorial/#configuring-tekton-chains)
 
 ```sh

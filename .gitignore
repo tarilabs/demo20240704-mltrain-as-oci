@@ -1,4 +1,6 @@
 venv
 *.joblib
 cosign.pub
+cosign.key
+cosign.password
 tmpconfig*.yaml
